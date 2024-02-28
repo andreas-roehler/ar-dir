@@ -1,6 +1,8 @@
 # ar-dir
 
-M-x ar-dir-create RET 
+An utility when creating new directories
+
+‘M-x ar-dir-create RET ’
 
 does the following:
 
