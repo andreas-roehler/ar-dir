@@ -26,7 +26,10 @@
 
 ;;; Code:
 
-(require 'ar-dir-storage)
+;; (require 'ar-dir-storage)
+
+(defvar ar-pfad nil
+  "Internal use only.")
 
 (defvar ar-debug-p nil
   "Assist debugging by switching to current buffer occasionally.")
@@ -115,7 +118,7 @@ echo $PWD"))
     (let ((oldbuf (current-buffer)))
       (when ar-debug-p (switch-to-buffer (current-buffer)))
       (goto-char (point-min))
-      (when (search-forward "(defvar ar-pfad")
+      (when (search-forward "(defvar ar-pfad" nil t)
         (beginning-of-line)
         (forward-sexp)
         (forward-line 1))
@@ -135,9 +138,10 @@ echo $PWD"))
       (end-of-line)
       (newline 1)
       (indent-according-to-mode)
-      (dolist (ele ar-pfad)
-        (insert (concat (prin1-to-string ele) "\n" (make-string 4 32)))
-        (indent-according-to-mode))
+      (when ar-pfad
+        (dolist (ele ar-pfad)
+          (insert (concat (prin1-to-string ele) "\n" (make-string 4 32)))
+          (indent-according-to-mode)))
       ;; (newline-and-indent)
       (insert ")")
       (write-file (expand-file-name ar-dir-storage))
@@ -205,7 +209,7 @@ echo $PWD"))
       (make-directory (substring verzeichnis (1+ (string-match "/[^//]+$" verzeichnis))) t))
     (neu-befehle-org name-raw verzeichnis)
     (ar-write-shell-jump name verzeichnis)
-    (setq ar-pfad (delete-dups ar-pfad))
+    (when ar-pfad (setq ar-pfad (delete-dups ar-pfad)))
     (when  (map-contains-key ar-pfad name)
       (when (y-or-n-p (concat "Replace " (prin1-to-string name)))
 	(setq ar-pfad (map-delete ar-pfad name))))
