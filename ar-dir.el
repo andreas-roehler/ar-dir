@@ -129,7 +129,7 @@ echo $PWD"))
 	  (search-forward "(setq ar-pfad" nil t)
         (beginning-of-line)
         (save-excursion
-          (delete-region (point) (progn (search-forward "(provide") (line-beginning-position)))))
+          (delete-region (point) (progn (search-forward "(provide" nil t) (line-beginning-position)))))
       (beginning-of-line)
       (split-line 1)
       (insert (concat "(setq ar-pfad \n" (make-string 2 32) "'(\n)"))
