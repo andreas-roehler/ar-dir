@@ -3,6 +3,10 @@
 ;; Author: Andreas Röhler <andreas.roehler@online.de>, Tobias
 ;; Keywords: convenience
 
+;; Version: 0.1
+
+;; URL: https://github.com/andreas-roehler/ar-dir
+
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
