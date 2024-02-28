@@ -74,7 +74,7 @@ Make sure, it is in $PATH"
       erg)))
 
 (defun ar-write-shell-jump (symbol pfad)
-  (let ((pfad (replace-regexp-in-string "/home/speck" "$HOME" (expand-file-name pfad))))
+  (let ((pfad (replace-regexp-in-string "^/[^/]+/[^/]+/" "$HOME/" (expand-file-name pfad))))
     ;; (pfad (concat "$HOME" (substring pfad 1))))
     (with-temp-buffer
       (when ar-debug-p (switch-to-buffer (current-buffer)))
@@ -164,7 +164,7 @@ echo $PWD"))
 	(find-file (concat verzeichnis "/" note-file-name))
       (write-file (concat verzeichnis "/" note-file-name))))
   (with-current-buffer
-      (find-file (concat ar-dir-name "/" caller-store-file-name))
+      (find-file caller-store-file-name)
     (goto-char (point-max))
     (when ar-debug-p (switch-to-buffer (current-buffer)))
     (insert (concat "\n\(defun " name "b ()\n  (interactive)\n "))
