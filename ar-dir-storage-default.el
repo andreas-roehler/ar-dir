@@ -25,7 +25,7 @@
 
 (setq ar-pfad
       '(
-        ;; (wad . "~/My-PATH/MY-DIR")
+        ;; (foo . "~/My-PATH/MY-DIR")
          )
   )
 

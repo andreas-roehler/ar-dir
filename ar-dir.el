@@ -62,11 +62,6 @@ Make sure, it is in $PATH"
   :type 'string
   :type 'string)
 
-(defcustom caller-store-file-name "ar-dir-caller-store.el"
-  "Store dir-switch commands here."
-  :type 'string
-  :type 'string)
-
 (defcustom ar-dir-path-separator-char (if (memq system-type '(ms-dos windows-nt cygwin))
                                    "\""
                                  "/")
@@ -197,19 +192,7 @@ echo $PWD"))
   (unless (file-readable-p (concat verzeichnis "/" note-file-name))
     (with-current-buffer
 	(find-file (concat verzeichnis "/" note-file-name))
-      (write-file (concat verzeichnis "/" note-file-name))))
-  (with-current-buffer
-      (find-file caller-store-file-name)
-    (let ((oldbuf (current-buffer)))
-      (goto-char (point-max))
-      (when ar-debug-p (switch-to-buffer (current-buffer)))
-      ;; insert command calling note-file-name
-      (insert (concat "\n\(defun " name "b ()\n  (interactive)\n "))
-      (insert " \(find-file \"")
-      (insert (concat verzeichnis (char-to-string 47) note-file-name "\")\n  (goto-char (point-max)))"))
-      (eval-buffer)
-      (write-file (expand-file-name caller-store-file-name))
-      (kill-buffer oldbuf))))
+      (write-file (concat verzeichnis "/" note-file-name)))))
 
 (defalias 'dnvz 'ar-neuverzeichnis-delete-dir)
 (defun ar-neuverzeichnis-delete-dir ()
