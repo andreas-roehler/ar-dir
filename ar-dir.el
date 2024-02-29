@@ -31,6 +31,12 @@
 (defvar ar-pfad nil
   "Internal use only.")
 
+(when (file-readable-p "ar-dir-storage.el")
+  (load "ar-dir-storage.el" nil t)
+  (ar-create-path-funcs ar-pfad)
+  (ar-create-note-funcs ar-pfad)
+  )
+
 (defvar ar-debug-p nil
   "Assist debugging by switching to current buffer occasionally.")
 
@@ -46,7 +52,7 @@ Make sure, it is in $PATH"
   :type 'string
   :group 'convenience)
 
-(defcustom ar-dir-storage "~/werkstatt/ar-dir/ar-dir-storage.el"
+(defcustom ar-dir-storage "~/ar-dir-storage-default.el"
   "The file, were the switch-dir commands are stored."
   :type 'string
   :type 'string)
@@ -148,6 +154,7 @@ echo $PWD"))
       (kill-buffer oldbuf))))
 
 (defun ar-create-path-funcs (&optional pfadliste)
+  (interactive)
   (let ((pfadliste (or pfadliste ar-pfad)))
     (mapc
      (lambda (x)
@@ -159,7 +166,30 @@ echo $PWD"))
 		      (symbol-name s))))
 	 (progn
 	   (set sym-p p)
-	   (fset sym-f `(lambda () (interactive) (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f"))))))
+	   (fset sym-f `(lambda () (interactive) (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f"))))
+         ))
+     pfadliste)))
+
+(defun ar-create-note-funcs (&optional pfadliste)
+  (interactive)
+  (let ((pfadliste (or pfadliste ar-pfad)))
+    (mapc
+     (lambda (x)
+       (let* ((s (car (read-from-string (concat (format "%s" (car x)) "b"))))
+	      (p (concat (cdr x)))
+	      (sym-p s
+               ;; (intern
+	       ;;        (symbol-name s))
+               )
+	      (sym-f s
+               ;; (intern
+	       ;;        (symbol-name s))
+
+               ))
+	 (progn
+	   (set sym-p p)
+	   (fset sym-f `(lambda () (interactive) (find-file (concat (format "%s" ,sym-p) "/befehle.org"))(goto-char (point-max))(skip-chars-backward " \t\r\n\f"))))
+         ))
      pfadliste)))
 
 (defun neu-befehle-org (name verzeichnis)
@@ -173,6 +203,7 @@ echo $PWD"))
     (let ((oldbuf (current-buffer)))
       (goto-char (point-max))
       (when ar-debug-p (switch-to-buffer (current-buffer)))
+      ;; insert command calling note-file-name
       (insert (concat "\n\(defun " name "b ()\n  (interactive)\n "))
       (insert " \(find-file \"")
       (insert (concat verzeichnis (char-to-string 47) note-file-name "\")\n  (goto-char (point-max)))"))
@@ -207,7 +238,7 @@ echo $PWD"))
 	 (name (intern name-raw)))
     (unless (file-readable-p verzeichnis)
       (make-directory (substring verzeichnis (1+ (string-match "/[^//]+$" verzeichnis))) t))
-    (neu-befehle-org name-raw verzeichnis)
+    ;; (neu-befehle-org name-raw verzeichnis)
     (ar-write-shell-jump name verzeichnis)
     (when ar-pfad (setq ar-pfad (delete-dups ar-pfad)))
     (when  (map-contains-key ar-pfad name)
@@ -216,6 +247,7 @@ echo $PWD"))
     (unless (map-contains-key ar-pfad verzeichnis)
       (push (cons name verzeichnis) ar-pfad)
       (ar-create-path-funcs (list (cons name verzeichnis)))
+      (ar-create-note-funcs (list (cons name verzeichnis)))
       (ar-update-pfad)
       )))
 
