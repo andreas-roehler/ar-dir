@@ -33,9 +33,7 @@
 
 (when (file-readable-p "ar-dir-storage.el")
   (load "ar-dir-storage.el" nil t)
-  (ar-create-path-funcs ar-pfad)
-  (ar-create-note-funcs ar-pfad)
-  )
+  (ar-create-path-funcs ar-pfad))
 
 (defvar ar-debug-p nil
   "Assist debugging by switching to current buffer occasionally.")
@@ -148,44 +146,24 @@ echo $PWD"))
       (write-file (expand-file-name ar-dir-storage))
       (kill-buffer oldbuf))))
 
-(defun ar-create-path-funcs (&optional pfadliste)
+(defun ar-create-path-funcs (&optional pathlist)
+  "(Load dired- and related commands according to PATHLIST.
+
+PATHLIST contains pairs of  (SYMBOL . \"PATH\")"
   (interactive)
-  (let ((pfadliste (or pfadliste ar-pfad)))
+  (let ((pathlist (or pathlist ar-pfad)))
     (mapc
      (lambda (x)
        (let* ((s (car x))
 	      (p (concat (cdr x)))
 	      (sym-p (intern
 		      (symbol-name s)))
-	      (sym-f (intern
-		      (symbol-name s))))
-	 (progn
-	   (set sym-p p)
-	   (fset sym-f `(lambda () (interactive) (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f"))))
-         ))
-     pfadliste)))
-
-(defun ar-create-note-funcs (&optional pfadliste)
-  (interactive)
-  (let ((pfadliste (or pfadliste ar-pfad)))
-    (mapc
-     (lambda (x)
-       (let* ((s (car (read-from-string (concat (format "%s" (car x)) "b"))))
-	      (p (concat (cdr x)))
-	      (sym-p s
-               ;; (intern
-	       ;;        (symbol-name s))
-               )
-	      (sym-f s
-               ;; (intern
-	       ;;        (symbol-name s))
-
-               ))
-	 (progn
-	   (set sym-p p)
-	   (fset sym-f `(lambda () (interactive) (find-file (concat (format "%s" ,sym-p) "/befehle.org"))(goto-char (point-max))(skip-chars-backward " \t\r\n\f"))))
-         ))
-     pfadliste)))
+              (sym-b (intern
+		      (concat (symbol-name s) "b"))))
+	 (set sym-p p)
+	 (fset sym-p `(lambda () (interactive) (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f")))
+         (fset sym-b `(lambda () (interactive) (find-file (concat (format "%s" ,sym-p) "/befehle.org"))(goto-char (point-max))(skip-chars-backward " \t\r\n\f")))))
+     pathlist)))
 
 (defun neu-befehle-org (name verzeichnis)
   "New file according to ‘note-file-name’, should it not exist."
@@ -214,14 +192,12 @@ echo $PWD"))
 (defalias 'nvz 'ar-dir-create)
 (defun ar-dir-create ()
   (interactive)
-  (let* (
-	 (verzeichnis (concat default-directory (read-from-minibuffer "Directory: ")))
+  (let* ((verzeichnis (concat default-directory (read-from-minibuffer "Directory: ")))
 	 (neuname (ar-neuname--intern (substring verzeichnis (1+ (string-match "/[^//]+$" verzeichnis)))))
 	 (name-raw (read-from-minibuffer "Aufruf: " neuname))
 	 (name (intern name-raw)))
     (unless (file-readable-p verzeichnis)
       (make-directory (substring verzeichnis (1+ (string-match "/[^//]+$" verzeichnis))) t))
-    ;; (neu-befehle-org name-raw verzeichnis)
     (ar-write-shell-jump name verzeichnis)
     (when ar-pfad (setq ar-pfad (delete-dups ar-pfad)))
     (when  (map-contains-key ar-pfad name)
@@ -230,7 +206,6 @@ echo $PWD"))
     (unless (map-contains-key ar-pfad verzeichnis)
       (push (cons name verzeichnis) ar-pfad)
       (ar-create-path-funcs (list (cons name verzeichnis)))
-      (ar-create-note-funcs (list (cons name verzeichnis)))
       (ar-update-pfad)
       )))
 
