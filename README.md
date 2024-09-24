@@ -15,12 +15,12 @@ does the following:
 
 # Install
 
-;; ar-dir-storage.el holds the data, thus shipping an empty file here
-;; first make a copy of your own
+ar-dir-storage.el holds the data, thus shipping an empty file here
+first make a copy of your own
 
 cp ar-dir-storage-default.el ar-dir-storage.el
 
-;; Put this into Emacs init file:
+Put this into Emacs init file:
 (add-to-list 'load-path "/PATH/TO/ar-dir")
 (require 'ar-dir)
 (require 'ar-dir-storage)
