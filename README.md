@@ -16,14 +16,20 @@ does the following:
 # Install
 
 ar-dir-storage.el holds the data, thus shipping an empty file here
-first make a copy of your own
+
+First make a copy of your own
 
 cp ar-dir-storage-default.el ar-dir-storage.el
 
 Put this into Emacs init file:
+
 (add-to-list 'load-path "/PATH/TO/ar-dir")
+
 (require 'ar-dir)
+
 (require 'ar-dir-storage)
+
 (ar-create-path-funcs ar-pfad)
+
 (ar-create-note-funcs ar-pfad))
 
