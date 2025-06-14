@@ -28,6 +28,7 @@
 
 ;; (require 'ar-dir-storage)
 
+;; (setq ar-debug-p t)
 (defvar ar-pfad nil
   "Internal use only.")
 
@@ -121,9 +122,9 @@ echo $PWD"))
         (beginning-of-line)
         (forward-sexp)
         (forward-line 1))
-      (unless
-          (looking-at "^[ \t\r]*$")
-        (newline 2))
+      ;; (unless
+      ;;     (looking-at "^[ \t\r]*$")
+      ;;   (newline 2))
       (when
 	  (search-forward "(setq ar-pfad" nil t)
         (beginning-of-line)
@@ -161,7 +162,7 @@ PATHLIST contains pairs of  (SYMBOL . \"PATH\")"
               (sym-b (intern
 		      (concat (symbol-name s) "b"))))
 	 (set sym-p p)
-	 (fset sym-p `(lambda () (interactive) (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f")))
+	 (fset sym-p `(lambda () (interactive) (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f")(setq avsait-output-dir ,sym-p)))
          (fset sym-b `(lambda () (interactive) (find-file (concat (format "%s" ,sym-p) "/befehle.org"))(goto-char (point-max))(skip-chars-backward " \t\r\n\f")))))
      pathlist)))
 
