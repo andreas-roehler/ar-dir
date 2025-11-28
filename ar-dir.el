@@ -26,6 +26,20 @@
 
 ;;; Code:
 
+(defun ar-get-cpu-name ()
+  "Returns the CPU name."
+  (interactive)
+  (let ((cpu-info (shell-command-to-string "cat /proc/cpuinfo")))
+    (with-current-buffer (get-buffer-create "*CPU Info*")
+      (insert cpu-info)
+      ;; (switch-to-buffer (current-buffer))
+      (goto-char (point-min))
+      (if (re-search-forward "^model name.+ \\([^ ]+\\) @" nil t)
+          ;; (message "%s" (match-string 1))
+          (match-string 1)
+      "ar-get-cpu-name:CPU name not found"))))
+
+(require 'dired-aux)
 ;; (require 'ar-dir-storage)
 
 ;; (setq ar-debug-p t)
@@ -160,9 +174,23 @@ PATHLIST contains pairs of  (SYMBOL . \"PATH\")"
 	      (sym-p (intern
 		      (symbol-name s)))
               (sym-b (intern
-		      (concat (symbol-name s) "b"))))
+		      (concat (symbol-name s) "b")))
+              (cpu (ar-get-cpu-name))
+              )
 	 (set sym-p p)
-	 (fset sym-p `(lambda () (interactive) (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f")(setq avsait-output-dir ,sym-p)))
+         (unless (or 
+                  ;; bug
+                  (and
+                   (string= cpu "N100")
+                   (or
+                    (string= (expand-file-name "~/.emacs.d/diary")(expand-file-name p))
+                    (string= (expand-file-name "~/arbeit/emacs-lisp/code-cells.el"))))
+                  (file-directory-p p)
+                  (not (string-match "^/home" (expand-file-name p)))
+                  )
+           (dired-create-directory p))
+	 (fset sym-p `(lambda () (interactive)
+                        (dired ,sym-p)(goto-char (point-max))(skip-chars-backward " \t\r\n\f")(setq avsait-output-dir ,sym-p)))
          (fset sym-b `(lambda () (interactive) (find-file (concat (format "%s" ,sym-p) "/befehle.org"))(goto-char (point-max))(skip-chars-backward " \t\r\n\f")))))
      pathlist)))
 
